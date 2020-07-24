@@ -1,4 +1,5 @@
 
+# just a test case.
 WORD_SEARCH_BLOCK = [
     "TCROHLOSTO",
     "EOPBISONIR",
@@ -28,6 +29,7 @@ words_dict = {
     "SKINK": 0,
     }        
 
+
 def main():
     print("Word Search Block:")
     show_block( WORD_SEARCH_BLOCK )
@@ -48,164 +50,32 @@ def main():
     return 1
 
 
-def diag_R_2_L():
-    tmp_block = WORD_SEARCH_BLOCK[:]
-    # function is the same as L_2_R but all diff
-    # is that line are reversed BEFORE anything is done
-    tmp_block = reverse_lines( tmp_block )
-
-    diag_block = horz_2_diag_L2R( tmp_block )
-
+def row_by_row():
     for word in words_dict:
-        tmp_diag_block = diag_block[:]
-        
-        if words_dict[word] == 1:
-            continue
+        # resets block being used to lower chars.
+        # needs to take slice of whole list since just assigning with '='
+        # only give the pointer, it does NOT copy data of original. 
+        tmp_block = WORD_SEARCH_BLOCK[:]
 
         found = False
-        cords = find_str_in_block( tmp_diag_block, word )
-
+        cords = find_str_in_block( tmp_block, word )
         if cords[0] != -1 and cords[1] != -1:
             found = True
+        
+        word_len = len( word )
+        old_line = tmp_block[ cords[1] ]
+        new_line = show_word_on_block( old_line, cords[0], word_len )
+        tmp_block[ cords[1] ] = new_line 
 
         if found:
-            word_len = len( word )
-            old_line = tmp_diag_block[ cords[1] ]
-
-            new_line = show_word_on_block( old_line, cords[0], word_len )
-            tmp_diag_block[ cords[1] ] = new_line            
             words_dict[word] = 1
             
             print("%s word found:" % word)
+            show_block( tmp_block )
 
-            # getting dimensions right so the diagonal order lines can
-            # be converted back into horizontal ones.
-            y = len(tmp_block) -1
-            x = len(tmp_block[0] ) -1
-            horz_lines = diag_L2R_2_horz( tmp_diag_block, x, y )
-
-            # you may notice that the horz lines are not reversed in this
-            # case, that's because in L_2_R you're essentially iterating
-            # backwards, but in this case we're going forward, so no need for it.
-            
-            show_block( horz_lines )
-    
-    return 1
-    
-
-def diag_L_2_R():
-    tmp_block = WORD_SEARCH_BLOCK[:]
-
-    diag_block = horz_2_diag_L2R( tmp_block )
-
-    for word in words_dict:
-        tmp_diag_block = diag_block[:]
-        
-        if words_dict[word] == 1:
             continue
 
-        found = False
-        cords = find_str_in_block( tmp_diag_block, word )
-
-        if cords[0] != -1 and cords[1] != -1:
-            found = True
-
-        if found:
-            word_len = len( word )
-            old_line = tmp_diag_block[ cords[1] ]
-
-            new_line = show_word_on_block( old_line, cords[0], word_len )
-            tmp_diag_block[ cords[1] ] = new_line            
-            words_dict[word] = 1
-            
-            print("%s word found:" % word)
-
-            # getting dimensions right so the diagonal order lines can
-            # be converted back into horizontal ones.
-            y = len(tmp_block) -1
-            x = len(tmp_block[0] ) -1
-            horz_lines = diag_L2R_2_horz( tmp_diag_block, x, y )
-
-            # this just reverses all current horizontal lines
-            # as they're in wrong order from the original.
-            back_2_normal_block = reverse_lines( horz_lines )
-            
-            show_block( back_2_normal_block )
-    
     return 1
-
-def diag_L2R_2_horz( block, x_axis_len, y_axis_len ):
-    tmp_block = block[:]
-
-    diag_list = []
-    
-    # so empty string are ready for use...
-    for i in range( y_axis_len+1 ):
-        diag_list.append("")
-
-    start = 0
-    end = 1
-
-    for line_i in range(x_axis_len+1):
-        for x in range(start, end):
-            diag_list[x] += tmp_block[line_i][x]
-
-        if x < x_axis_len:
-            end += 1
-    
-    block_len = len( tmp_block )
-    y_start = 1
-    tmp_y = y_start
-
-    for line_j, line_str in enumerate( tmp_block[line_i+1:] ):
-        for char in line_str:
-            diag_list[tmp_y] += char
-            tmp_y += 1
-        
-        y_start += 1
-        tmp_y = y_start
-
-    return diag_list
-
-def horz_2_diag_L2R( block ):
-    y_axis_len = len(block) -1 # both already in list format (-1 len)
-    x_axis_len = len(block[0]) -1
-    diag_list = []
-
-    y_start = 0
-    x_start = x_axis_len
-    x_end = x_axis_len
-
-    ## This is the main outter loop:
-    # Basically y only adds by 1 in each X loop, then gets
-    # reset back to 0 again after it. 
-    while True:
-        if x_start < 0:
-            x_start = 0
-            y_start += 1
-            
-        tmp_y = y_start
-        tmp_str = ""
-
-        for x_i_start in range(x_start, x_end+1):
-            if tmp_y >= y_axis_len:
-                tmp_str += block[tmp_y][x_i_start]
-                break
-            
-            tmp_str += block[tmp_y][x_i_start]
-
-            if tmp_y < y_axis_len:
-                tmp_y += 1
-    
-        diag_list.append( tmp_str )
-
-        x_start -= 1
-        
-        if x_start < 0 and y_start == y_axis_len:
-            break
-
-    return diag_list
-
 
 
 def col_by_col():
@@ -245,6 +115,7 @@ def col_by_col():
 
     return 1
 
+
 # converts columns into rows and vice versa
 def inv_col_row( block ):
     inv_block = []
@@ -262,32 +133,167 @@ def inv_col_row( block ):
 
     return inv_block
 
-def row_by_row():
+
+def diag_L_2_R():
+    tmp_block = WORD_SEARCH_BLOCK[:]
+
+    diag_block = horz_2_diag( tmp_block )
+
     for word in words_dict:
-        # resets block being used to lower chars.
-        # needs to take slice of whole list since just assigning with '='
-        # only give the pointer, it does NOT copy data of original. 
-        tmp_block = WORD_SEARCH_BLOCK[:]
+        tmp_diag_block = diag_block[:]
+        
+        if words_dict[word] == 1:
+            continue
 
         found = False
-        cords = find_str_in_block( tmp_block, word )
+        cords = find_str_in_block( tmp_diag_block, word )
+
         if cords[0] != -1 and cords[1] != -1:
             found = True
-        
-        word_len = len( word )
-        old_line = tmp_block[ cords[1] ]
-        new_line = show_word_on_block( old_line, cords[0], word_len )
-        tmp_block[ cords[1] ] = new_line 
 
         if found:
+            word_len = len( word )
+            old_line = tmp_diag_block[ cords[1] ]
+
+            new_line = show_word_on_block( old_line, cords[0], word_len )
+            tmp_diag_block[ cords[1] ] = new_line            
             words_dict[word] = 1
             
             print("%s word found:" % word)
-            show_block( tmp_block )
 
+            # getting dimensions right so the diagonal order lines can
+            # be converted back into horizontal ones.
+            y = len(tmp_block) -1
+            x = len(tmp_block[0] ) -1
+            horz_lines = diag_2_horz( tmp_diag_block, x, y )
+
+            # this just reverses all current horizontal lines
+            # as they're in wrong order from the original.
+            back_2_normal_block = reverse_lines( horz_lines )
+            
+            show_block( back_2_normal_block )
+    
+    return 1
+
+
+def diag_R_2_L():
+    tmp_block = WORD_SEARCH_BLOCK[:]
+    # function is the same as L_2_R but all diff
+    # is that line are reversed BEFORE anything is done
+    tmp_block = reverse_lines( tmp_block )
+
+    diag_block = horz_2_diag( tmp_block )
+
+    for word in words_dict:
+        tmp_diag_block = diag_block[:]
+        
+        if words_dict[word] == 1:
             continue
 
+        found = False
+        cords = find_str_in_block( tmp_diag_block, word )
+
+        if cords[0] != -1 and cords[1] != -1:
+            found = True
+
+        if found:
+            word_len = len( word )
+            old_line = tmp_diag_block[ cords[1] ]
+
+            new_line = show_word_on_block( old_line, cords[0], word_len )
+            tmp_diag_block[ cords[1] ] = new_line            
+            words_dict[word] = 1
+            
+            print("%s word found:" % word)
+
+            # getting dimensions right so the diagonal order lines can
+            # be converted back into horizontal ones.
+            y = len(tmp_block) -1
+            x = len(tmp_block[0] ) -1
+            horz_lines = diag_2_horz( tmp_diag_block, x, y )
+
+            # you may notice that the horz lines are not reversed in this
+            # case, that's because in L_2_R you're essentially iterating
+            # backwards, but in this case we're going forward, so no need for it.
+            
+            show_block( horz_lines )
+    
     return 1
+
+
+def diag_2_horz( block, x_axis_len, y_axis_len ):
+    tmp_block = block[:]
+
+    diag_list = []
+    
+    # so empty string are ready for use...
+    for i in range( y_axis_len+1 ):
+        diag_list.append("")
+
+    start = 0
+    end = 1
+
+    for line_i in range(x_axis_len+1):
+        for x in range(start, end):
+            diag_list[x] += tmp_block[line_i][x]
+
+        if x < x_axis_len:
+            end += 1
+    
+    block_len = len( tmp_block )
+    y_start = 1
+    tmp_y = y_start
+
+    for line_j, line_str in enumerate( tmp_block[line_i+1:] ):
+        for char in line_str:
+            diag_list[tmp_y] += char
+            tmp_y += 1
+        
+        y_start += 1
+        tmp_y = y_start
+
+    return diag_list
+
+
+def horz_2_diag( block ):
+    y_axis_len = len(block) -1 # both already in list format (-1 len)
+    x_axis_len = len(block[0]) -1
+    diag_list = []
+
+    y_start = 0
+    x_start = x_axis_len
+    x_end = x_axis_len
+
+    ## This is the main outter loop:
+    # Basically y only adds by 1 in each X loop, then gets
+    # reset back to 0 again after it. 
+    while True:
+        if x_start < 0:
+            x_start = 0
+            y_start += 1
+            
+        tmp_y = y_start
+        tmp_str = ""
+
+        for x_i_start in range(x_start, x_end+1):
+            if tmp_y >= y_axis_len:
+                tmp_str += block[tmp_y][x_i_start]
+                break
+            
+            tmp_str += block[tmp_y][x_i_start]
+
+            if tmp_y < y_axis_len:
+                tmp_y += 1
+    
+        diag_list.append( tmp_str )
+
+        x_start -= 1
+        
+        if x_start < 0 and y_start == y_axis_len:
+            break
+
+    return diag_list
+
 
 # iterates through each line to find string,
 # then returns co-ordinates of starting point in list form.
@@ -307,6 +313,7 @@ def find_str_in_block( block, word ):
 
     return [x_axis, y_axis]
 
+
 # function to lower chars in line str, starting from
 # index given and ending in index + length of word.
 #   start = index
@@ -323,13 +330,17 @@ def show_word_on_block(line_str, index, word_len):
 
     return new_line
 
+
 # display block passed through so user can see words found, etc.
 def show_block( block ):
     for line in block:
         for char in line:
             print(char, end=" ")
+            
         print()
+        
     print("\n" + "#"*20 + "\n")
+
     
 def reverse_lines( block ):
     reversed_block = []
@@ -339,7 +350,7 @@ def reverse_lines( block ):
 
     return reversed_block
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     main()
 
